@@ -1,60 +1,45 @@
-#include <bits/stdc++.h>
-using namespace std;
-int n;
-int a[104][104];
-int cpy[104][104];
-int _max = 0;
-int ans = 0;
-int dy[4] = {1, 0, -1, 0};
-int dx[4] = {0, 1, 0, -1};
+#include<bits/stdc++.h>
+using namespace std;   
+int a[101][101], visited[101][101], n, ret = 1;
+int dy[4] = {1, 0, -1, 0}, dx[4] = {0, 1, 0, -1};
 
-void dfs(int y, int x, int (&a)[104][104]) {
-    a[y][x] = 0;
-    for(int i  = 0; i < 4; i++) {
-        int ny = y + dy[i];
-        int nx = x + dx[i];
-        if (ny < 0 || nx < 0 || ny >= n || nx >=n || a[ny][nx] == 0) continue;
-        dfs(ny, nx, a);
+void dfs(int y, int x, int d){
+    visited[y][x] = 1; 
+    for(int i = 0; i < 4; i++){
+        int ny = y + dy[i]; 
+        int nx = x + dx[i]; 
+        // 좌표 예외 처리
+        if(ny < 0 || nx < 0 || ny >= n || nx >= n) continue; 
+        // 높은 영역 확인후 없애기
+        if(!visited[ny][nx] && a[ny][nx] > d) dfs(ny, nx, d);
     }
-}
-
-// 미해결
-int main(void) {
+    return;
+} 
+int main(){
     freopen("./input.txt", "r", stdin);
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-    cin >> n;
-    for(int i = 0; i < n; i++) {
-        char c;
-        for(int j = 0; j < n; j++) {
-            cin >> c;
-            a[i][j] = (int)c - '0';
-            _max = max(_max, a[i][j]);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);   
+    cin >> n; 
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            cin >> a[i][j];
         }
     }
-    memcpy(cpy, a, sizeof(a));
-
-    for(int k = 2; k < _max; k++) {
-        int cnt;
-
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                if (a[i][j] <= k) a[i][j] = 0;
+    for(int d = 1; d < 101; d++){
+        // 모든 높이를 검색하기 위한 배열 초기화
+        fill(&visited[0][0], &visited[0][0] + 101 * 101, 0); 
+        int cnt = 0;  
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                // 높이가 높거나 방문하지 않았으면 안전영역 진행
+                if(a[i][j] > d && !visited[i][j]) {
+                    dfs(i, j, d);
+                    cnt++;
+                }
             }
         }
-
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                if (a[i][j] == 0) continue;
-                cnt++;
-                dfs(i, j, a);
-            }
-        }
-        ans = max(cnt, ans);
-        memcpy(a, cpy, sizeof(cpy));
-        cnt = 0;
+        ret = max(ret, cnt);
     }
-    if (ans == 0) ans = 1;
-    cout << ans;
+    cout << ret; 
 }
