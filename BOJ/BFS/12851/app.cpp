@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 int n, m;
-int a[200004];
 int visited[200004];
+int cnt[200004];
 queue<int> q;
 
 int main() {
@@ -13,29 +13,31 @@ int main() {
     cin >> n >> m;
     // 현재위치와 탐색위치 예외처리
     if (n == m) {
-        cout << 0;
+        cout << 0 << "\n";
+        cout << 1 << "\n";
         return 0;
     }
     // 방문처리
     visited[n] = 1;
-    a[n] = 1;
+    cnt[n] = 1;
     q.push(n);
 
-    while(!q.empty()) {
+    while(q.size()) {
         int curr = q.front(); q.pop();
-        for(int next: { curr + 1, curr - 1, curr * 2 }) {
-            // 최대 범위 예외처리
-            if (next < 0 || next > 200000) continue;
-            // 방문 예외처리
-            if (visited[next]) continue;
-            // 방문 처리
-            visited[next] = 1;
-            // 최초 방문 횟수
-            a[next] = a[curr] + 1;
-            // 다음 탐색 진행
-            q.push(next);
+        for(auto next: { curr - 1, curr + 1, curr * 2 }) {
+            // 범위 예외처리
+            if (next < 0 || 200000 < next) continue;
+            // 방문처리
+            if (!visited[next]) {
+                q.push(next);
+                visited[next] = visited[curr] + 1;
+                cnt[next] += cnt[curr];
+            // 이미 방문을 하였지만 다른 경우의 수 확인 
+            } else if (visited[next] == visited[curr] + 1) {
+                cnt[next] += cnt[curr];
+            }
         }
     }
-    // 초기값이 1이므로 -1 정제
-    cout << a[m] - 1;
+    cout << visited[m] - 1 << "\n";
+    cout << cnt[m];
 }
